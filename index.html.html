@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Resolver Problemas</title>
+<style>
+:root{--bg:#fff3b0;--fg:#000;--y:#FFE600;--p:#FF4FA3;--sh:#000;box-sizing:border-box;padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#161616;--fg:#fff;--sh:#FFE600}}
+:root[data-theme=dark]{--bg:#161616;--fg:#fff;--sh:#FFE600}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:600 16px/1.5 "Arial Black","Helvetica Neue",Arial,sans-serif;padding-top:calc(60px + env(safe-area-inset-top,0px))}
+nav{position:fixed;top:0;left:0;right:0;z-index:9;background:#000;border-bottom:5px solid var(--y);display:flex;overflow-x:auto;padding-top:env(safe-area-inset-top,0px)}
+nav a{color:var(--y);text-decoration:none;text-transform:uppercase;font-weight:900;font-size:14px;padding:14px 16px;white-space:nowrap;border-right:3px solid #333}
+nav a.on,nav a:hover{background:var(--y);color:#000}
+main{max-width:860px;margin:0 auto;padding:20px 16px 60px}
+h1{font-size:clamp(40px,11vw,92px);line-height:.95;margin:10px 0;text-transform:uppercase;font-weight:900;letter-spacing:-2px}
+h1 span{background:var(--p);color:#000;padding:0 8px;box-shadow:8px 8px 0 var(--sh);display:inline-block}
+h2{font-size:clamp(24px,5vw,38px);text-transform:uppercase;margin:36px 0 8px;font-weight:900;border-bottom:6px solid var(--p);display:inline-block}
+.hook{font-size:clamp(18px,3.5vw,26px);background:var(--y);color:#000;border:4px solid #000;box-shadow:6px 6px 0 var(--sh);padding:14px;margin:20px 0}
+.c{background:#fff;color:#000;border:4px solid #000;box-shadow:6px 6px 0 var(--sh);padding:16px;margin:16px 0}
+.y{background:var(--y)}.p{background:var(--p)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px}
+.grid a.c{text-decoration:none;color:#000;display:block;transition:transform .08s}
+.grid a.c:hover{transform:translate(-3px,-3px)}
+.grid b{font-size:44px;display:block;line-height:1}
+.num{display:inline-block;background:#000;color:var(--y);padding:2px 10px;margin-right:8px}
+.step{margin:10px 0;padding:10px;border:3px solid #000;background:#fff}
+.step.k{background:var(--y)}
+.b{font:inherit;font-weight:900;text-transform:uppercase;background:var(--p);color:#000;border:4px solid #000;box-shadow:4px 4px 0 var(--sh);padding:10px 14px;cursor:pointer;margin:6px 6px 6px 0}
+.b:active{transform:translate(4px,4px);box-shadow:0 0 0 #000}
+.b.on{background:var(--y)}
+textarea,input[type=text],input[type=number]{width:100%;border:4px solid #000;padding:8px;font:600 15px/1.4 Arial,sans-serif;background:#fff;color:#000}
+textarea:disabled{background:#ddd}
+label.l{display:block;margin-top:12px;font-weight:900}
+.bar{height:22px;border:4px solid #000;background:#fff;margin:8px 0}
+.bar i{display:block;height:100%;width:0;background:var(--p);transition:width .2s}
+pre{white-space:pre-wrap;background:#000;color:var(--y);padding:12px;font:600 14px/1.5 monospace;margin:12px 0 0}
+pre:empty{display:none}
+.chk{display:flex;gap:10px;align-items:flex-start;margin:8px 0;font-weight:600;cursor:pointer}
+.chk input{width:26px;height:26px;accent-color:#000;flex:none}
+table{width:100%;border-collapse:collapse}
+td,th{border:3px solid #000;padding:6px;text-align:center;font-size:14px}
+td input{width:60px;text-align:center;padding:4px}
+.win td,.win{background:var(--y)}
+.game{display:grid;gap:10px}
+.slot{min-height:54px;border:4px dashed #000;background:#fff;color:#000;padding:8px;display:flex;gap:8px;align-items:center}
+.slot b{background:#000;color:var(--y);padding:0 10px}
+.slot.ok{border-style:solid;background:var(--y)}
+.pool{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0}
+.tile{background:var(--p);color:#000;border:4px solid #000;box-shadow:4px 4px 0 var(--sh);padding:10px 14px;font-weight:900;cursor:grab;user-select:none}
+.tile.sel{outline:5px solid var(--y);outline-offset:2px;background:#fff}
+.tile.no{animation:sh .3s}
+@keyframes sh{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.win-msg{background:var(--y);color:#000;border:5px solid #000;box-shadow:8px 8px 0 var(--sh);padding:20px;font-size:26px;text-align:center;text-transform:uppercase;margin-top:14px}
+a.ext{color:#000;font-weight:900}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style></head><body>
+<nav id="nav"></nav><main id="m"></main>
+<script>
+const M=[
+{n:'El plan de 5 días',a:'Anne Morriss',p:'Día ',
+intro:'Un problema grande se vuelve manejable cuando le pones fecha: cinco días, un paso por día. Sirve para decisiones y problemas que llevas posponiendo.',
+steps:[['Define el problema','Escribe en una frase qué pasa, a quién afecta y cómo sabrás que está resuelto.'],['Investiga y escucha','Reúne datos y habla con quien conoce el tema o lo vive contigo.'],['Genera ideas','Anota muchas soluciones posibles, sin juzgarlas todavía.'],['Elige y prepara','Escoge una opción, define el primer paso y reserva el tiempo.'],['Actúa y revisa','Ejecuta, mide qué pasó y ajusta lo que haga falta.']],
+ex:{t:'Académico: suspendí el parcial de Estadística y el siguiente es en 10 días',s:['Día 1: "No soy bueno en mates" es vago. El problema real: no entiendo probabilidad condicionada y saqué un 4. Meta: un 6 en el siguiente parcial.','Día 2: Reviso mis errores: el 70% están en dos temas. Hablo con el profesor y con una compañera que aprobó.','Día 3: Ideas: tutoría, 5 ejercicios al día, grupo de estudio, videos explicativos, resumen en tarjetas.','Día 4: Elijo grupo de estudio + 5 ejercicios diarios. Agendo martes y jueves a las 6 pm.','Día 5: Primera sesión de grupo y mini-simulacro. Acierto 6 de 10: la estrategia funciona, la mantengo.']}},
+{n:'Polya',a:'George Pólya',p:'Paso ',
+intro:'El matemático George Pólya propuso cuatro fases para cualquier problema: no te lances a resolver antes de entenderlo, y no termines sin revisar.',
+steps:[['Comprender el problema','¿Cuál es la incógnita? ¿Qué datos tengo? ¿Qué condiciones hay?'],['Trazar un plan','¿Me recuerda a otro problema? ¿Puedo dividirlo en partes o dibujarlo?'],['Ejecutar el plan','Sigue el plan paso a paso y comprueba cada uno.'],['Revisar y aprender','¿El resultado tiene sentido? ¿Qué aprendí para la próxima?']],
+ex:{t:'Personal: el dinero no me alcanza a fin de mes',s:['Comprender: gano 1.200, y a día 22 ya no me queda nada. Incógnita: ¿en qué se va el dinero? Condición: no puedo reducir el alquiler.','Plan: apunto cada gasto durante una semana, lo agrupo por categorías y fijo un tope por categoría (como un problema de reparto).','Ejecutar: descubro 140 en comida a domicilio y suscripciones sin usar. Cancelo dos suscripciones y pongo tope de 60 a los pedidos.','Revisar: ¿cuadran los números? Ahorro 120 al mes. Aprendí a revisar mis gastos el primer domingo de cada mes.']}},
+{n:'Los 5 Porqués',a:'Taiichi Ohno (Toyota)',p:'Por qué ',
+intro:'Pregunta "¿por qué?" cinco veces seguidas para pasar del síntoma a la causa raíz. Así arreglas el origen y no solo el efecto.',
+steps:[['Nombra el problema','Descríbelo con hechos concretos, no con opiniones.'],['Pregunta por qué','Busca la causa directa y verifícala con datos.'],['Repite sobre la respuesta','Pregunta por qué otra vez sobre cada causa. Suele bastar con cinco veces.'],['Detecta la causa raíz','Es la causa que, si la arreglas, el problema no vuelve.'],['Actúa sobre la raíz','Define una acción concreta, una persona responsable y una fecha.']],
+ex:{t:'Proyecto: la web de un cliente se entregó 2 semanas tarde',s:['Problema: la entrega se retrasó 2 semanas.','1. ¿Por qué? Porque el diseño final llegó tarde.','2. ¿Por qué? Porque el cliente cambió el logo a mitad de proyecto.','3. ¿Por qué? Porque no estaban claros los requisitos de marca al empezar.','4. ¿Por qué? Porque no hubo una reunión inicial de requisitos.','5. ¿Por qué? Porque no existe una lista de arranque obligatoria para proyectos nuevos.','Raíz y acción: crear una lista de arranque con identidad de marca y aprobarla antes de diseñar. Responsable: la jefa de proyecto, para el lunes.']}},
+{n:'Design Thinking exprés',a:'d.school (Stanford)',p:'Paso ',
+intro:'Versión rápida para resolver problemas centrándote en las personas: entiende, define, imagina, prueba en pequeño y aprende. Se puede hacer en una tarde.',
+steps:[['Empatizar','Observa o pregunta a quien vive el problema. Escucha antes de proponer.'],['Definir','Resume el problema como una necesidad: "Necesito X porque Y".'],['Idear','Escribe muchas ideas, aunque suenen raras. Cantidad antes que calidad.'],['Prototipar','Haz la versión más simple y barata de tu mejor idea.'],['Probar','Pruébala unos días y quédate con lo que funciona.']],
+ex:{t:'Cotidiano: las mañanas en casa son un caos y siempre salimos tarde',s:['Empatizar: observo una mañana. Se pierden cinco minutos buscando llaves y mochilas, y el desayuno se hace con prisa.','Definir: necesitamos tener todo listo antes de dormir porque las mañanas no dan tiempo para improvisar.','Idear: estación de salida junto a la puerta, ropa preparada, alarma 15 min antes, desayuno de la noche anterior.','Prototipar: una caja junto a la puerta para llaves, mochilas y papeles. Cuesta cero.','Probar: una semana. Salimos a tiempo 5 de 7 días. Sumo la ropa preparada la noche anterior.']}}
+];
+const RES=[['Anne Morriss','5 pasos para arreglar cualquier problema en el trabajo','Un plan de lunes a viernes, con un paso por día, para pasar de la preocupación a la acción (TED 2023).','https://www.youtube.com/watch?v=V7pf3oT2_dE'],['Tim Harford','Cómo la frustración nos hace más creativos','Cuenta por qué los obstáculos y el desorden pueden empujarnos a soluciones mejores (TEDGlobal 2015).','https://www.youtube.com/watch?v=AtoIUZ-g4cg'],['Navi Radjou','Resolver problemas con creatividad ante límites extremos','Presenta el "jugaad", la innovación frugal: hacer más con menos recursos (TEDGlobal 2014).','https://www.youtube.com/watch?v=cHRZ6OrSvvI']];
+const $=s=>document.querySelector(s);
+const link=(i)=>`#m${i+1}`;
+function form(el,fields,lock){
+ el.innerHTML='<div class="bar"><i></i></div><p></p>'+fields.map((f,i)=>`<label class="l">${f[0]}</label><textarea rows="2" placeholder="${f[1]}"></textarea>`).join('')+'<button class="b">Generar resumen</button><pre></pre>';
+ const q=s=>el.querySelector(s),t=[...el.querySelectorAll('textarea')];
+ const u=()=>{const n=t.filter(x=>x.value.trim()).length;q('.bar i').style.width=n/t.length*100+'%';q('p').textContent=n+' de '+t.length+' campos completos';if(lock)t.forEach((x,i)=>x.disabled=i>0&&!t[i-1].value.trim())};
+ t.forEach(x=>x.oninput=u);u();
+ q('button').onclick=()=>q('pre').textContent=fields.map((f,i)=>f[0]+'\n→ '+(t[i].value.trim()||'(sin completar)')).join('\n\n');
+}
+const A=[
+ el=>{el.innerHTML='<p>Escribe un problema real y recorre los 5 días. Puedes hacer un día cada jornada.</p><div id="f"></div>';
+  form($('#f'),[['Día 1 · Mi problema, en una frase y cómo sabré que está resuelto','Ej.: Llego tarde al trabajo; resuelto si llego a tiempo 4 de 5 días'],['Día 2 · Qué datos tengo y a quién voy a escuchar','Datos, personas, causas posibles'],['Día 3 · Al menos 3 ideas posibles','Una por línea, sin juzgar'],['Día 4 · La idea elegida y mi primer paso (con fecha)','Qué haré, cuándo y qué necesito'],['Día 5 · Qué pasó y qué ajusto','Resultado, aprendizaje y siguiente ajuste']])},
+ el=>{const P=[['Comprender',['Puedo explicar el problema con mis palabras','Sé qué datos tengo y cuáles me faltan','Sé qué resultado busco']],['Trazar un plan',['Lo he dividido en partes más pequeñas','He buscado un problema parecido que ya resolví','Tengo un orden de pasos escrito']],['Ejecutar',['He hecho el primer paso y lo he comprobado','Cada paso tiene un resultado visible','Anoto lo que cambio si algo falla']],['Revisar',['El resultado tiene sentido','Comprobé que resuelve el problema inicial','Anoté qué aprendí para la próxima vez']]];
+  el.innerHTML='<label class="l">Mi problema</label><input type="text" placeholder="Describe tu problema en una frase"><div class="bar"><i></i></div><p></p>'+P.map(f=>`<div class="step"><b>${f[0]}</b>${f[1].map(x=>`<label class="chk"><input type="checkbox"><span>${x}</span></label>`).join('')}</div>`).join('');
+  const cs=[...el.querySelectorAll('[type=checkbox]')],p=el.querySelector('p'),u=()=>{const n=cs.filter(c=>c.checked).length;el.querySelector('.bar i').style.width=n/cs.length*100+'%';p.textContent=n===cs.length?'¡Las cuatro fases completadas! Problema encaminado.':n+' de '+cs.length+' comprobaciones'};
+  cs.forEach(c=>c.onchange=u);u()},
+ el=>{el.innerHTML='<p>Cada respuesta desbloquea la siguiente pregunta. Responde con hechos, no con opiniones.</p><div id="f"></div>';
+  form($('#f'),[['Problema (qué pasa, con datos)','Ej.: El informe se entregó 3 días tarde'],['1. ¿Por qué ocurrió?','Causa directa'],['2. ¿Por qué ocurrió eso?','Causa de la causa'],['3. ¿Por qué?','Sigue profundizando'],['4. ¿Por qué?','Casi en la raíz'],['5. ¿Por qué? Esta es la causa raíz','Si la arreglas, el problema no vuelve'],['Acción, responsable y fecha','Qué harás sobre la causa raíz']],true)},
+ el=>{const C=['Impacto','Facilidad','Rapidez'];
+  el.innerHTML='<label class="l">Problema</label><input type="text" placeholder="¿Qué quieres resolver?"><p>Escribe 3 ideas y puntúalas del 1 al 5 en cada criterio. Gana la que sume más.</p><table><tr><th>Idea</th>'+C.map(c=>`<th>${c}</th>`).join('')+'<th>Total</th></tr>'+[0,1,2].map(i=>`<tr><td><input type="text" placeholder="Idea ${i+1}"></td>${C.map(()=>'<td><input type="number" min="1" max="5"></td>').join('')}<td class="t">0</td></tr>`).join('')+'</table><p class="r"></p>';
+  const rows=[...el.querySelectorAll('tr')].slice(1),r=el.querySelector('.r'),u=()=>{let best=-1,bi=-1;rows.forEach((tr,i)=>{tr.classList.remove('win');const s=[...tr.querySelectorAll('[type=number]')].reduce((a,x)=>a+Math.min(5,Math.max(0,+x.value||0)),0);tr.querySelector('.t').textContent=s;if(s>best){best=s;bi=i}});if(best>0){rows[bi].classList.add('win');r.textContent='Tu mejor opción: '+(rows[bi].querySelector('[type=text]').value||'Idea '+(bi+1))+' ('+best+' puntos). Conviértela en un prototipo mínimo.'}else r.textContent=''};
+  el.addEventListener('input',u)}
+];
+function game(el){let mi=0,sel=null,fails=0,left=0;
+ function start(){const st=M[mi].steps.map(s=>s[0]),n=st.length;left=n;fails=0;sel=null;
+  const ord=[...st.keys()].sort(()=>Math.random()-.5);
+  el.innerHTML=M.map((m,i)=>`<button class="b ${i==mi?'on':''}" data-m="${i}">${m.n}</button>`).join('')+'<p>Arrastra cada ficha a su posición (o toca la ficha y luego el hueco).</p><div class="game">'+st.map((s,i)=>`<div class="slot" data-i="${i}"><b>${i+1}</b></div>`).join('')+'</div><div class="pool">'+ord.map(i=>`<div class="tile" draggable="true" data-i="${i}">${st[i]}</div>`).join('')+'</div><p class="f">Fallos: 0</p><div id="w"></div>';}
+ function drop(slot,tile){if(!slot||!tile||slot.classList.contains('ok'))return;
+  if(slot.dataset.i===tile.dataset.i){slot.classList.add('ok');slot.append(tile.textContent);tile.remove();sel=null;if(--left==0)el.querySelector('#w').innerHTML='<div class="win-msg">¡Lo lograste! Orden perfecto con '+fails+' fallos.</div>'}
+  else{fails++;el.querySelector('.f').textContent='Fallos: '+fails;tile.classList.add('no');setTimeout(()=>tile.classList.remove('no'),300)}}
+ el.onclick=e=>{const b=e.target.closest('[data-m]'),t=e.target.closest('.tile'),s=e.target.closest('.slot');
+  if(b){mi=+b.dataset.m;start()}
+  else if(t){el.querySelectorAll('.tile').forEach(x=>x.classList.remove('sel'));sel=t;t.classList.add('sel')}
+  else if(s&&sel){drop(s,sel)}};
+ el.ondragstart=e=>{const t=e.target.closest('.tile');if(t){sel=t;e.dataTransfer.setData('text','x')}};
+ el.ondragover=e=>e.preventDefault();
+ el.ondrop=e=>{e.preventDefault();drop(e.target.closest('.slot'),sel)};
+ start()}
+function render(){
+ const h=location.hash.slice(1)||'inicio',m=$('#m');
+ $('#nav').innerHTML=[['inicio','Inicio'],['m1','Método 1'],['m2','Método 2'],['m3','Método 3'],['m4','Método 4'],['recursos','Recursos']].map(x=>`<a href="#${x[0]}" class="${x[0]==h?'on':''}">${x[1]}</a>`).join('');
+ scrollTo(0,0);
+ if(h=='inicio'){m.innerHTML='<h1>Resolver <span>problemas</span></h1><div class="hook">¿Tienes un pequeño problema y ya sientes que el mundo se acaba?</div><p>Respira. Cuatro métodos, cada uno con ejemplo resuelto y una actividad para aplicarlo a lo tuyo.</p><div class="grid">'+M.map((x,i)=>`<a class="c ${['y','p','','y'][i]}" href="${link(i)}"><b>${i+1}</b>${x.n}<br><small>${x.a}</small></a>`).join('')+'</div>'}
+ else if(h=='recursos'){m.innerHTML='<h1>Recur<span>sos</span></h1><div class="grid">'+RES.map((r,i)=>`<div class="c ${['y','p','y'][i]}"><h3 style="margin:0">${r[1]}</h3><p><b>${r[0]}</b></p><p>${r[2]}</p><a class="ext" href="${r[3]}" target="_blank" rel="noopener">▶ Ver en YouTube</a></div>`).join('')+'</div><h2>Juego final</h2><div class="c" id="g"></div>';game($('#g'))}
+ else{const i=+h.slice(1)-1,x=M[i]||M[0];
+  m.innerHTML=`<h1><span>${x.n}</span></h1><p><b>${x.a}</b></p><div class="c y">${x.intro}</div><h2>El método</h2>`+x.steps.map((s,j)=>`<div class="step"><span class="num">${x.p}${j+1}</span><b>${s[0]}</b><br>${s[1]}</div>`).join('')+`<h2>Ejemplo resuelto</h2><div class="c p"><b>${x.ex.t}</b></div>`+x.ex.s.map(s=>`<div class="step k">${s}</div>`).join('')+'<h2>Tu turno</h2><div class="c" id="act"></div>'+(i<3?`<a class="b" style="display:inline-block;text-decoration:none" href="${link(i+1)}">Siguiente método</a>`:'<a class="b" style="display:inline-block;text-decoration:none" href="#recursos">Ir a recursos y juego</a>');
+  A[i]($('#act'))}}
+addEventListener('hashchange',render);render();
+</script></body></html>
